@@ -18,7 +18,7 @@ def review_to_words( raw_review ):
     return review_words_only
 
 
-train = pd.read_csv("K:\\python_workspace\\bag_of_words\\labeledTrainData.tsv", header = 0, delimiter="\t", quoting=3)
+train = pd.read_csv("labeledTrainData.tsv", header = 0, delimiter="\t", quoting=3)
 total_size = train["review"].size
 clean_reviews = []
 for i in xrange( 0, total_size ):
@@ -28,7 +28,7 @@ for i in xrange( 0, total_size ):
 # example1 = review_to_words(train["review"][0])
 # print example1
 
-vectorizer = CountVectorizer(analyzer = "word", tokenizer = None, preprocessor = None, stop_words = stopwords.words("english"), max_features = 3000)
+vectorizer = CountVectorizer(analyzer = "word", tokenizer = None, preprocessor = None, stop_words = stopwords.words("english"), max_features = 5000)
 train_data_features = vectorizer.fit_transform(clean_reviews)
 train_data_features = train_data_features.toarray()
 
@@ -48,7 +48,7 @@ forest = RandomForestClassifier(n_estimators = 100)
 forest = forest.fit( train_data_features, train["sentiment"] )
 
 print "Predicting the test reviews..."
-test = pd.read_csv("K:\\python_workspace\\bag_of_words\\testData.tsv", header = 0, delimiter="\t", quoting=3)
+test = pd.read_csv("testData.tsv", header = 0, delimiter="\t", quoting=3)
 total_test_size = test["review"].size
 clean_test_reviews = []
 for i in xrange( 0, total_test_size ):
@@ -63,5 +63,5 @@ result = forest.predict(test_data_features)
 
 output = pd.DataFrame( data = {"id":test["id"], "sentiment":result} )
 
-output.to_csv("Bag_of_Words_model_3000.csv", index = False, quoting = 3)
+output.to_csv("Bag_of_Words_model_5000.csv", index = False, quoting = 3)
 
