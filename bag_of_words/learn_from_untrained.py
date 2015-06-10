@@ -10,7 +10,7 @@ unlabeled_train = pd.read_csv("unlabeledTrainData.tsv", header = 0, delimiter = 
 
 def review_to_wordlist( review, remove_stopwords = False):
 	review_text = BeautifulSoup(review).get_text()
-	review_text = re.sub("[^A-Za-z]", " ",review_text)
+	review_text = re.sub("[^0-9A-Za-z]", " ",review_text)
 	words = review_text.lower().split()
 	
 	if remove_stopwords:
@@ -56,6 +56,6 @@ model = word2vec.Word2Vec(sentences, workers = num_workers, size = num_features,
 
 model.init_sims(replace = True)
 
-model_name = "300feature_40minwords_10context"
+model_name = "300feature_40minwords_10context_nonumber"
 model.save(model_name)
 

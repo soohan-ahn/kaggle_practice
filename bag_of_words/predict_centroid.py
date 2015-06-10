@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 
 def review_to_wordlist( review, remove_stopwords = False):
   review_text = BeautifulSoup(review).get_text()
-  review_text = re.sub("[^A-Za-z]", " ",review_text)
+  review_text = re.sub("[^0-9A-Za-z]", " ",review_text)
   words = review_text.lower().split()
   
   if remove_stopwords:
@@ -60,7 +60,7 @@ test = pd.read_csv("testData.tsv", header = 0, delimiter = "\t", quoting = 3)
 
 from gensim.models import Word2Vec
 
-model = Word2Vec.load("300feature_40minwords_10context")
+model = Word2Vec.load("300feature_40minwords_10context_nonumber")
 num_features = 300
 
 from sklearn.cluster import KMeans
@@ -70,10 +70,9 @@ word_vectors = model.syn0
 num_clusters = word_vectors.shape[0] / 5
 
 kmeans_clustering = KMeans( n_clusters = num_clusters )
-idx = kmeans_clustering.fit( word_vectors )
+idx = kmeans_clustering.fit_predict( word_vectors )
 
 word_centroid_map = dict(zip( model.index2word, idx ))
-
 
 clean_train_reviews = []
 for review in train["review"]:
@@ -83,7 +82,7 @@ trainCentroids = np.zeros( (train["review"].size, num_clusters), dtype = "float3
 
 counter = 0
 for review in clean_train_reviews:
-  trainCentroids = create_bag_of_centroids( review, word_centroid_map )
+  trainCentroids[counter] = create_bag_of_centroids( review, word_centroid_map )
   counter += 1
 
 
@@ -92,15 +91,15 @@ clean_test_reviews = []
 for review in test["review"]:
   clean_test_reviews.append( review_to_wordlist( review, remove_stopwords = True ) )
 
-testCentroids = np.zeros( (test["test"].size, num_clusters), dtype = "float32" )
+testCentroids = np.zeros( (test["review"].size, num_clusters), dtype = "float32" )
 
 counter = 0
 for review in clean_test_reviews:
-  testCentroids = create_bag_of_centroids( review, word_centroid_map )
+  testCentroids[counter] = create_bag_of_centroids( review, word_centroid_map )
   counter += 1
 
 from sklearn.ensemble import RandomForestClassifier
-forest = RandomForestClassifier( n_estimators = 100 )
+forest = RandomForestClassifier( n_estimators = 1000 )
 
 print "Fitting a ramdom forest to labeled training data.. "
 forest = forest.fit( trainCentroids, train["sentiment"] )
@@ -108,5 +107,5 @@ forest = forest.fit( trainCentroids, train["sentiment"] )
 result = forest.predict( testCentroids )
 
 output = pd.DataFrame( data = {"id": test["id"], "sentiment": result } )
-output.to_csv("Word2Vec_Centroids.csv", index = False, quoting = 3 )
+output.to_csv("Word2Vec_Centroids_1000_no_number.csv", index = False, quoting = 3 )
 

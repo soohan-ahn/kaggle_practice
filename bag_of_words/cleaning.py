@@ -9,7 +9,7 @@ import numpy as np
 
 def review_to_words( raw_review ):
     review_words_only = BeautifulSoup(raw_review)
-    review_words_only = re.sub("[^a-zA-z]", " ", review_words_only.get_text())
+    review_words_only = re.sub("[^0-9a-zA-z]", " ", review_words_only.get_text())
     review_words_only = review_words_only.lower()
     # words_in_lower_case = only_letters_lower.split()
     
